@@ -69,6 +69,11 @@ async function getJobDetail(jobId) {
 async function getFirstPaidInvoiceDate(jobId) {
   try {
     const invoices = await apiGet('jobs/' + jobId + '/invoices/');
+    console.log('  DEBUG invoices type:', typeof invoices, 'isArray:', Array.isArray(invoices));
+    console.log('  DEBUG invoices raw:', JSON.stringify(invoices).substring(0, 500));
+    if (Array.isArray(invoices) && invoices.length > 0) {
+      console.log('  DEBUG first invoice keys:', Object.keys(invoices[0]).join(', '));
+    }
     if (!Array.isArray(invoices) || invoices.length === 0) return null;
 
     let earliest = null;
