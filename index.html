@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Project | Limitless Garage Doors &amp; Gates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f7fa;color:#333;min-height:100vh}
+
+    /* Header */
+    .header{background:#20354D;color:#fff;padding:24px 20px;text-align:center}
+    .header h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+    .header .subtitle{font-size:13px;color:#BBBDBF;margin-top:4px}
+    .header .fab60{display:inline-block;background:#389155;color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;margin-top:8px;letter-spacing:.5px}
+
+    /* Search */
+    .search-section{max-width:600px;margin:32px auto 0;padding:0 20px}
+    .search-box{display:flex;gap:8px}
+    .search-box input{flex:1;padding:14px 16px;border:2px solid #ddd;border-radius:8px;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s}
+    .search-box input:focus{border-color:#20354D}
+    .search-box input::placeholder{color:#aaa}
+    .search-box button{padding:14px 24px;background:#20354D;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s}
+    .search-box button:hover{background:#2a4567}
+    .search-hint{text-align:center;font-size:13px;color:#888;margin-top:8px}
+
+    /* Result */
+    .result-section{max-width:700px;margin:24px auto;padding:0 20px;display:none}
+    .result-section.active{display:block}
+    .error-msg{background:#fff3f3;border:1px solid #e0a0a0;color:#c0392b;padding:16px;border-radius:8px;text-align:center;font-size:15px;display:none}
+    .error-msg.active{display:block}
+
+    /* Job Card */
+    .job-card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;display:none}
+    .job-card.active{display:block}
+
+    .job-header{padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #eee}
+    .job-header-left .job-id{font-size:13px;color:#888;font-weight:500}
+    .job-header-left .job-title{font-size:18px;font-weight:700;color:#20354D;margin-top:2px}
+    .job-header-left .job-desc{font-size:13px;color:#666;margin-top:4px;line-height:1.4}
+
+    .health-badge{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;flex-shrink:0;margin-top:2px}
+
+    /* Days remaining */
+    .days-row{display:flex;gap:16px;padding:16px 24px;border-bottom:1px solid #eee;justify-content:center;flex-wrap:wrap}
+    .days-item{text-align:center;min-width:100px}
+    .days-item .days-num{font-size:32px;font-weight:700;line-height:1}
+    .days-item .days-label{font-size:12px;color:#666;margin-top:4px}
+
+    /* Progress bar */
+    .progress-section{padding:24px 16px 8px;overflow-x:auto}
+    .stage-bar{display:flex;align-items:flex-start;min-width:550px}
+    .stage-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+    .stage-item .connector{position:absolute;top:13px;left:50%;width:100%;height:3px;background:#e0e0e0;z-index:0}
+    .stage-item:last-child .connector{display:none}
+    .stage-item.complete .connector{background:#389155}
+    .stage-item.current .connector{background:linear-gradient(to right,#389155 50%,#e0e0e0 50%)}
+    .stage-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;z-index:1;position:relative}
+    .stage-item.complete .stage-circle{background:#389155;color:#fff}
+    .stage-item.current .stage-circle{background:#20354D;color:#fff;box-shadow:0 0 0 4px rgba(32,53,77,.2)}
+    .stage-item.future .stage-circle{background:#fff;color:#aaa;border:2px solid #ddd}
+    .stage-item.paused .stage-circle{background:#BBBDBF;color:#fff}
+    .stage-label{font-size:9px;color:#888;margin-top:5px;text-align:center;line-height:1.2;max-width:56px;min-height:22px}
+    .stage-item.current .stage-label{color:#20354D;font-weight:600;font-size:10px}
+    .stage-item.complete .stage-label{color:#389155}
+
+    /* Stage message */
+    .stage-message{padding:4px 24px 20px}
+    .msg-box{border-left:4px solid #389155;padding:14px 16px;border-radius:0 8px 8px 0;font-size:14px;color:#333;line-height:1.5}
+    .msg-box.on-track{background:#f0f7f2;border-left-color:#389155}
+    .msg-box.watch{background:#fffbf0;border-left-color:#E0A22F}
+    .msg-box.at-risk{background:#fff8f0;border-left-color:#E0692F}
+    .msg-box.paused{background:#f5f5f5;border-left-color:#BBBDBF}
+    .msg-box.overdue{background:#fff3f3;border-left-color:#C0392B}
+    .msg-box.complete{background:#f0f7f2;border-left-color:#389155}
+
+    /* Milestones */
+    .milestones-section{padding:0 24px 20px}
+    .section-title{font-size:14px;font-weight:600;color:#20354D;margin-bottom:12px}
+    .ms-table{width:100%;border-collapse:collapse}
+    .ms-table th{text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:2px solid #eee}
+    .ms-table td{padding:10px;font-size:14px;border-bottom:1px solid #f0f0f0}
+    .ms-table tr:last-child td{border-bottom:none}
+    .ms-name{font-weight:600;color:#20354D}
+    .ms-day{font-size:12px;color:#888;font-weight:400}
+    .ms-date{color:#666}
+    .ms-actual.done{color:#389155;font-weight:600}
+    .ms-actual.upcoming{color:#888;font-style:italic}
+    .ms-actual.missed{color:#C0392B;font-weight:600}
+    .ms-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block}
+    .ms-pill.done{background:#e8f5ec;color:#389155}
+    .ms-pill.upcoming{background:#f0f0f0;color:#888}
+    .ms-pill.due-soon{background:#fff8e8;color:#E0A22F}
+    .ms-pill.overdue{background:#ffe8e8;color:#C0392B}
+
+    /* Promise / info */
+    .promise-bar{padding:16px 24px;text-align:center;border-top:1px solid #eee;background:#fafbfc}
+    .promise-text{font-size:13px;color:#888}
+    .promise-text strong{color:#389155}
+    .promise-text .excluded{color:#E0A22F}
+
+    .job-footer{padding:12px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12px;color:#aaa}
+
+    .footer{text-align:center;padding:24px 20px;font-size:12px;color:#aaa}
+    .footer a{color:#20354D;text-decoration:none}
+
+    /* Mobile */
+    @media(max-width:600px){
+      .job-header{flex-direction:column;gap:10px}
+      .days-row{gap:12px}
+      .days-item .days-num{font-size:26px}
+      .ms-table th,.ms-table td{padding:8px 6px;font-size:13px}
+      .progress-section{padding:20px 8px 8px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>LIMITLESS</h1>
+  <div class="subtitle">Garage Doors &amp; Gates</div>
+  <div class="fab60">THE FAB 60</div>
+</div>
+
+<div class="search-section">
+  <div class="search-box">
+    <input type="text" id="fab60Search" placeholder="Enter your job number" inputmode="numeric" autocomplete="off">
+    <button id="fab60Btn" onclick="doSearch()">Track</button>
+  </div>
+  <div class="search-hint">Your job number is on your quote or invoice</div>
+</div>
+
+<div class="result-section" id="resultSection">
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="job-card" id="jobCard">
+    <div class="job-header">
+      <div class="job-header-left">
+        <div class="job-id" id="jobId"></div>
+        <div class="job-title" id="jobTitle"></div>
+        <div class="job-desc" id="jobDesc"></div>
+      </div>
+      <div id="healthBadge" class="health-badge"></div>
+    </div>
+
+    <div class="days-row" id="daysRow"></div>
+
+    <div class="progress-section">
+      <div class="stage-bar" id="stageBar"></div>
+    </div>
+
+    <div class="stage-message">
+      <div class="msg-box" id="stageMsg"></div>
+    </div>
+
+    <div class="milestones-section">
+      <div class="section-title">Key Dates</div>
+      <table class="ms-table">
+        <thead><tr><th>Milestone</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+        <tbody id="msBody"></tbody>
+      </table>
+    </div>
+
+    <div class="promise-bar" id="promiseBar"></div>
+    <div class="job-footer">
+      <span id="lastUpdated"></span>
+      <span id="categoryLabel"></span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  &copy; 2026 Limitless Garage Doors &amp; Gates &mdash; Toowoomba, QLD<br>
+  <a href="https://limitlessgaragedoors.com.au">limitlessgaragedoors.com.au</a>
+</div>
+
+<script>
+const STAGES = [
+  { num:1,  short:'Accepted',    full:'Order Accepted',     msg:'Your order has been accepted and is in the queue. We\'ll be in touch to schedule your site measure.' },
+  { num:2,  short:'Measure',     full:'Measuring Up',       msg:'We\'re measuring up at your site to get everything perfect for your project.' },
+  { num:3,  short:'Site Prep',   full:'Site Preparation',   msg:'Your site is being prepared for installation.' },
+  { num:4,  short:'Materials',   full:'Ordering Materials',  msg:'We\'re ordering the materials for your project.' },
+  { num:5,  short:'Site Works',  full:'Third-Party Works',  msg:'We\'re waiting on third-party works at your site (e.g. concreting, power). The 60-day clock is paused during this time.' },
+  { num:6,  short:'Build',       full:'Fabrication',         msg:'Your gate is being built right now in our workshop.' },
+  { num:7,  short:'Test Fit',    full:'Test Fit',            msg:'We\'re doing a test fit to make sure everything is spot on before finishing.' },
+  { num:8,  short:'Coating',     full:'Powder Coating',      msg:'Your gate is at the powder coater getting its colour and finish applied.' },
+  { num:9,  short:'Final Build', full:'Final Assembly',      msg:'Final assembly â putting the finishing touches on your gate.' },
+  { num:10, short:'Install',     full:'Installation',        msg:'Installation day! We\'re fitting your gate on site.' },
+  { num:11, short:'Complete',    full:'Complete',             msg:'All done! Your project has been installed and handed over.' }
+];
+
+const MS_INFO = {
+  CC1: { label:'Scope Confirmed',         day:10, desc:'Final measure complete, scope locked in' },
+  CC2: { label:'Ready for Coating',        day:26, desc:'Test fit done, off to the coater' },
+  CC3: { label:'Install & Handover',       day:41, desc:'Installed, tested and handed over to you' },
+  DUE: { label:'Project Due',              day:60, desc:'Your 60-day completion date' }
+};
+
+const HEALTH_MAP = {
+  ON_TRACK: { label:'On Track',  bg:'#389155' },
+  WATCH:    { label:'Watch',     bg:'#E0A22F' },
+  AT_RISK:  { label:'At Risk',   bg:'#E0692F' },
+  PAUSED:   { label:'Paused',    bg:'#BBBDBF' },
+  OVERDUE:  { label:'Overdue',   bg:'#C0392B' },
+  COMPLETE: { label:'Complete',  bg:'#389155' }
+};
+
+const CAT_LABELS = {
+  SLIDE_GATE:'Sliding Gate', SWING_GATE:'Swing Gate', PA_GATE:'PA Gate',
+  BAR_GRILL:'Bar Grill', TILT_FENCE:'Tilt Fence',
+  GARAGE_DOOR:'Garage Door'
+};
+
+let allJobs = [];
+
+async function loadData() {
+  try {
+    const r = await fetch('fab60-data.json?' + Date.now());
+    if (!r.ok) return;
+    const d = await r.json();
+    allJobs = d.jobs || [];
+  } catch(e) { console.warn('No data file yet'); }
+}
+
+function doSearch() {
+  const q = document.getElementById('fab60Search').value.trim();
+  if (!q) return;
+  const sec = document.getElementById('resultSection');
+  const err = document.getElementById('errorMsg');
+  const card = document.getElementById('jobCard');
+  sec.classList.add('active');
+  err.classList.remove('active');
+  card.classList.remove('active');
+
+  const job = allJobs.find(j => String(j.jobNumber) === q);
+  if (!job) {
+    err.textContent = 'Job #' + q + ' not found. Please check the number and try again.';
+    err.classList.add('active');
+    return;
+  }
+  renderJob(job);
+  card.classList.add('active');
+}
+
+function renderJob(j) {
+  // Header
+  document.getElementById('jobId').textContent = 'Job #' + j.jobNumber;
+  document.getElementById('jobTitle').textContent = j.customerFirstName + (j.suburb ? ', ' + j.suburb : '');
+  document.getElementById('jobDesc').textContent = j.description || '';
+
+  // Health badge
+  const h = HEALTH_MAP[j.health] || HEALTH_MAP.ON_TRACK;
+  const badge = document.getElementById('healthBadge');
+  badge.style.background = h.bg;
+  badge.textContent = h.label;
+
+  // Days row
+  const daysRow = document.getElementById('daysRow');
+  daysRow.innerHTML = '';
+  if (j.stage < 11) {
+    const daysToInstall = j.daysToInstall != null ? j.daysToInstall : '';
+    const daysToDue = j.daysToDue != null ? j.daysToDue : '';
+    const healthColor = h.bg;
+    if (daysToDue !== '') {
+      const di = document.createElement('div');
+      di.className = 'days-item';
+      const overdue = daysToDue < 0;
+      di.innerHTML = '<div class="days-num" style="color:' + healthColor + '">' +
+        (overdue ? Math.abs(daysToDue) : daysToDue) +
+        '</div><div class="days-label">' +
+        (overdue ? 'days overdue' : 'days to due date') + '</div>';
+      daysRow.appendChild(di);
+    }
+    if (j.isPaused) {
+      const pi = document.createElement('div');
+      pi.className = 'days-item';
+      pi.innerHTML = '<div class="days-num" style="color:#BBBDBF">||</div><div class="days-label">clock paused</div>';
+      daysRow.appendChild(pi);
+    }
+    if (j.totalPausedDays > 0) {
+      const pd = document.createElement('div');
+      pd.className = 'days-item';
+      pd.innerHTML = '<div class="days-num" style="color:#888;font-size:24px">' + j.totalPausedDays +
+        '</div><div class="days-label">days paused</div>';
+      daysRow.appendChild(pd);
+    }
+  } else {
+    const ci = document.createElement('div');
+    ci.className = 'days-item';
+    ci.innerHTML = '<div class="days-num" style="color:#389155">&#10003;</div><div class="days-label">project complete</div>';
+    daysRow.appendChild(ci);
+  }
+
+  // Stage bar
+  const bar = document.getElementById('stageBar');
+  bar.innerHTML = '';
+  STAGES.forEach(s => {
+    const item = document.createElement('div');
+    let cls = 'stage-item ';
+    if (s.num < j.stage) cls += 'complete';
+    else if (s.num === j.stage) cls += (j.isPaused && s.num === 5 ? 'paused' : 'current');
+    else cls += 'future';
+    item.className = cls;
+    item.innerHTML = '<div class="connector"></div>' +
+      '<div class="stage-circle">' + (s.num < j.stage ? '&#10003;' : s.num) + '</div>' +
+      '<div class="stage-label">' + s.short + '</div>';
+    bar.appendChild(item);
+  });
+
+  // Stage message
+  const stageObj = STAGES.find(s => s.num === j.stage) || STAGES[0];
+  const msgBox = document.getElementById('stageMsg');
+  let msgCls = 'msg-box ';
+  if (j.stage === 11) msgCls += 'complete';
+  else if (j.health === 'PAUSED') msgCls += 'paused';
+  else if (j.health === 'OVERDUE') msgCls += 'overdue';
+  else if (j.health === 'AT_RISK') msgCls += 'at-risk';
+  else if (j.health === 'WATCH') msgCls += 'watch';
+  else msgCls += 'on-track';
+  msgBox.className = msgCls;
+  msgBox.textContent = stageObj.msg;
+
+  // Milestones table
+  const msBody = document.getElementById('msBody');
+  msBody.innerHTML = '';
+  const today = new Date().toISOString().slice(0,10);
+  ['CC1','CC2','CC3','DUE'].forEach(code => {
+    const ms = j.milestones ? j.milestones[code] : null;
+    const info = MS_INFO[code];
+    const tr = document.createElement('tr');
+    const targetDate = ms ? ms.target || ms.targetDate : null;
+    const actualDate = ms ? ms.actual || ms.actualDate : null;
+
+    // Name cell
+    const tdName = document.createElement('td');
+    tdName.innerHTML = '<span class="ms-name">' + info.label + '</span><br><span class="ms-day">Day ' + info.day + '</span>';
+    tr.appendChild(tdName);
+
+    // Target cell
+    const tdTarget = document.createElement('td');
+    tdTarget.className = 'ms-date';
+    tdTarget.textContent = targetDate ? fmtDate(targetDate) : 'â';
+    tr.appendChild(tdTarget);
+
+    // Actual cell
+    const tdActual = document.createElement('td');
+    if (actualDate) {
+      tdActual.className = 'ms-actual done';
+      tdActual.textContent = fmtDate(actualDate);
+    } else {
+      tdActual.className = 'ms-actual upcoming';
+      tdActual.textContent = 'â';
+    }
+    tr.appendChild(tdActual);
+
+    // Status cell
+    const tdStatus = document.createElement('td');
+    const pill = document.createElement('span');
+    if (actualDate) {
+      pill.className = 'ms-pill done';
+      pill.textContent = 'Done';
+    } else if (j.stage === 11) {
+      pill.className = 'ms-pill done';
+      pill.textContent = 'Done';
+    } else if (targetDate && targetDate < today) {
+      pill.className = 'ms-pill overdue';
+      pill.textContent = 'Overdue';
+    } else if (targetDate && daysDiff(today, targetDate) <= 5) {
+      pill.className = 'ms-pill due-soon';
+      pill.textContent = 'Due soon';
+    } else {
+      pill.className = 'ms-pill upcoming';
+      pill.textContent = 'Upcoming';
+    }
+    tdStatus.appendChild(pill);
+    tr.appendChild(tdStatus);
+    msBody.appendChild(tr);
+  });
+
+  // Promise bar
+  const pb = document.getElementById('promiseBar');
+  if (j.isExcluded) {
+    pb.innerHTML = '<div class="promise-text"><span class="excluded">This project has an individually quoted timeframe</span></div>';
+  } else {
+    const dueDate = j.milestones && j.milestones.DUE ? (j.milestones.DUE.target || j.milestones.DUE.targetDate) : null;
+    pb.innerHTML = '<div class="promise-text">The Fab 60 Promise: your project delivered within <strong>60 days</strong>' +
+      (dueDate ? ' â due by <strong>' + fmtDate(dueDate) + '</strong>' : '') + '</div>';
+  }
+
+  // Footer
+  document.getElementById('lastUpdated').textContent = 'Last updated: ' + (j.lastUpdated ? fmtDate(j.lastUpdated) : 'N/A');
+  document.getElementById('categoryLabel').textContent = j.category ? (CAT_LABELS[j.category] || j.category) : '';
+}
+
+function fmtDate(d) {
+  if (!d) return 'â';
+  const dt = new Date(d + 'T00:00:00');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return dt.getDate() + ' ' + months[dt.getMonth()] + ' ' + dt.getFullYear();
+}
+
+function daysDiff(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+// URL param support
+function init() {
+  loadData().then(() => {
+    const params = new URLSearchParams(window.location.search);
+    const jobParam = params.get('job');
+    if (jobParam) {
+      document.getElementById('fab60Search').value = jobParam;
+      doSearch();
+    }
+  });
+}
+
+document.getElementById('fab60Search').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+init();
+</script>
+</body>
+</html>
