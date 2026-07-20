@@ -185,7 +185,7 @@ const STAGES = [
   { num:6,  short:'Build',       full:'Fabrication',         msg:'Your gate is being built right now in our workshop.' },
   { num:7,  short:'Test Fit',    full:'Test Fit',            msg:'We\'re doing a test fit to make sure everything is spot on before finishing.' },
   { num:8,  short:'Coating',     full:'Powder Coating',      msg:'Your gate is at the powder coater getting its colour and finish applied.' },
-  { num:9,  short:'Final Build', full:'Final Assembly',      msg:'Final assembly â putting the finishing touches on your gate.' },
+  { num:9,  short:'Final Build', full:'Final Assembly',      msg:'Final assembly — putting the finishing touches on your gate.' },
   { num:10, short:'Install',     full:'Installation',        msg:'Installation day! We\'re fitting your gate on site.' },
   { num:11, short:'Complete',    full:'Complete',             msg:'All done! Your project has been installed and handed over.' }
 ];
@@ -340,7 +340,7 @@ function renderJob(j) {
     // Target cell
     const tdTarget = document.createElement('td');
     tdTarget.className = 'ms-date';
-    tdTarget.textContent = targetDate ? fmtDate(targetDate) : 'â';
+    tdTarget.textContent = targetDate ? fmtDate(targetDate) : '—';
     tr.appendChild(tdTarget);
 
     // Actual cell
@@ -350,7 +350,7 @@ function renderJob(j) {
       tdActual.textContent = fmtDate(actualDate);
     } else {
       tdActual.className = 'ms-actual upcoming';
-      tdActual.textContent = 'â';
+      tdActual.textContent = '—';
     }
     tr.appendChild(tdActual);
 
@@ -385,7 +385,7 @@ function renderJob(j) {
   } else {
     const dueDate = j.milestones && j.milestones.DUE ? (j.milestones.DUE.target || j.milestones.DUE.targetDate) : null;
     pb.innerHTML = '<div class="promise-text">The Fab 60 Promise: your project delivered within <strong>60 days</strong>' +
-      (dueDate ? ' â due by <strong>' + fmtDate(dueDate) + '</strong>' : '') + '</div>';
+      (dueDate ? ' — due by <strong>' + fmtDate(dueDate) + '</strong>' : '') + '</div>';
   }
 
   // Footer
@@ -394,7 +394,7 @@ function renderJob(j) {
 }
 
 function fmtDate(d) {
-  if (!d) return 'â';
+  if (!d) return '—';
   const dt = new Date(d + 'T00:00:00');
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return dt.getDate() + ' ' + months[dt.getMonth()] + ' ' + dt.getFullYear();
