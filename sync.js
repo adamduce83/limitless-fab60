@@ -69,21 +69,21 @@ async function getJobDetail(jobId) {
 async function getFirstPaidInvoiceDate(jobId) {
   try {
     const invoices = await apiGet('jobs/' + jobId + '/invoices/');
-    console.log('  DEBUG invoices type:', typeof invoices, 'isArray:', Array.isArray(invoices));
-    console.log('  DEBUG invoices raw:', JSON.stringify(invoices).substring(0, 500));
-    if (Array.isArray(invoices) && invoices.length > 0) {
-      console.log('  DEBUG first invoice keys:', Object.keys(invoices[0]).join(', '));
-    }
     if (!Array.isArray(invoices) || invoices.length === 0) return null;
 
     let earliest = null;
     for (const inv of invoices) {
-      const paidDate = inv.DatePaid || inv.PaidDate || null;
-      if (paidDate && paidDate !== '0000-00-00') {
-        const d = paidDate.slice(0, 10);
+      // Simpro API returns DateIssued, Status.Name, Total.Paid but NOT a DatePaid field
+      // Use DateIssued when invoice status indicates payment received
+      const statusName = inv.Status ? (typeof inv.Status === 'string' ? inv.Status : inv.Status.Name || '') : '';
+      const isPaid = statusName.toLowerCase().includes('paid') || (inv.Total && inv.Total.Paid > 0);
+      
+      if (isPaid && inv.DateIssued) {
+        const d = inv.DateIssued.slice(0, 10);
         if (!earliest || d < earliest) earliest = d;
       }
     }
+    console.log('  Invoice result for ' + jobId + ': ' + (earliest || 'no paid invoice found'));
     return earliest;
   } catch(e) {
     console.warn('  WARN: invoices for ' + jobId + ': ' + e.message);
