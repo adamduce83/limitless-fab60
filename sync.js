@@ -83,7 +83,6 @@ async function getFirstPaidInvoiceDate(jobId) {
         if (!earliest || d < earliest) earliest = d;
       }
     }
-    console.log('  Invoice result for ' + jobId + ': ' + (earliest || 'no paid invoice found'));
     return earliest;
   } catch(e) {
     console.warn('  WARN: invoices for ' + jobId + ': ' + e.message);
@@ -290,12 +289,9 @@ async function main() {
   for (const entry of entries) {
     const jobId = typeof entry === 'object' ? entry.id : entry;
     const jobConfig = typeof entry === 'object' ? entry : {};
-    console.log('Processing job ' + jobId + '...');
-
     const result = await processJob(jobId, jobConfig);
     if (result) {
       jobs.push(result);
-      console.log('  -> ' + result.customerFirstName + ' | stage ' + result.stage + ' | ' + result.health);
     }
   }
 
