@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-20T10:15:28.846Z",
+  "lastUpdated": "2026-07-21T05:20:01.018Z",
   "totalJobs": 1,
   "jobs": [
     {
@@ -9,7 +9,7 @@
       "description": "GATE QUOTE",
       "category": null,
       "convertedDate": "2026-03-09",
-      "stage": 1,
+      "stage": 11,
       "milestones": {
         "CC1": {
           "target": "2026-03-19",
@@ -31,11 +31,11 @@
       "totalPausedDays": 0,
       "isPaused": false,
       "isExcluded": false,
-      "health": "OVERDUE",
-      "daysToDue": -73,
-      "daysToInstall": -92,
-      "bufferRemaining": -73,
-      "lastUpdated": "2026-07-20"
+      "health": "COMPLETE",
+      "daysToDue": -74,
+      "daysToInstall": -93,
+      "bufferRemaining": -74,
+      "lastUpdated": "2026-07-21"
     }
   ]
 }
