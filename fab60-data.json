@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-21T05:20:01.018Z",
+  "lastUpdated": "2026-07-24T07:29:08.775Z",
   "totalJobs": 1,
   "jobs": [
     {
@@ -32,10 +32,10 @@
       "isPaused": false,
       "isExcluded": false,
       "health": "COMPLETE",
-      "daysToDue": -74,
-      "daysToInstall": -93,
-      "bufferRemaining": -74,
-      "lastUpdated": "2026-07-21"
+      "daysToDue": -77,
+      "daysToInstall": -96,
+      "bufferRemaining": -77,
+      "lastUpdated": "2026-07-24"
     }
   ]
 }
